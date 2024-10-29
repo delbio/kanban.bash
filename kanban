@@ -309,7 +309,7 @@ update_item_status(){
     newitem="${newitem/$status/$2}"
     newitem="${newitem/$flags/$newflags}"
     newitem="${newitem/$dates/$newdates}"
-    sed -i '' "s|$item|$newitem|g" "$KANBANFILE" 
+    sed "s|$item|$newitem|g" "$KANBANFILE" > $TMP.update.tmp && mv $TMP.update.tmp "$KANBANFILE"
     echo "$status -> $2"
   fi
 }
@@ -327,7 +327,7 @@ update_item(){
 #
 '"$item" > $TMP.update
   ${EDITOR} $TMP.update
-  sed -i '' "s|$item|$(cat $TMP.update | tail -n1)|g" "$KANBANFILE" 
+  sed "s|$item|$(cat $TMP.update | tail -n1)|g" "$KANBANFILE" > $TMP.update.tmp && mv $TMP.update.tmp "$KANBANFILE"
   echo "updated item $1"
 }
 
