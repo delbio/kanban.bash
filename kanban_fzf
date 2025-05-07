@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+#set -x
+
+KANBAN_OPTS="NOCOLOR=1"
+#KANBAN_OPTS+=" PLAIN=1"
+
+tf="$(mktemp)"
+
+mv_to_target="cd {} && cd .."
+
+kanban_list="${mv_to_target} && ${KANBAN_OPTS} kanban list $@"
+kanban_show="${mv_to_target} && ${KANBAN_OPTS} kanban show $@"
+kanban_tags="${mv_to_target} && ${KANBAN_OPTS} kanban tags $@"
+kanban_add="${mv_to_target} && ${KANBAN_OPTS} kanban add $@"
+kanban_csv="${mv_to_target} && ${KANBAN_OPTS} kanban csv $@"
+
+FZF_PREVIEW_OPTS="--preview \"${kanban_list}\""
+
+if [ -n "$(command -v tput)" ]; then
+  XSMALL=119
+  X=$(tput cols)   # get size of terminal window
+  (( $X < $XSMALL )) && FZF_PREVIEW_OPTS=""
+fi
+
+find -L . -iname ".kanban" | fzf \
+  ${FZF_PREVIEW_OPTS} \
+  --header '? help' \
+  --layout=reverse \
+  --bind "enter:execute( echo {} > ${tf} && ${kanban_list} >> ${tf} && cat ${tf} | less)" \
+  --bind "ctrl-s:execute(echo {} > ${tf} && ${kanban_show} >> ${tf} && cat ${tf} | less)" \
+  --bind "ctrl-l:execute(echo {} > ${tf} && ${kanban_list} >> ${tf} && cat ${tf} | less)" \
+  --bind "ctrl-t:execute(echo {} > ${tf} && ${kanban_tags} >> ${tf} && cat ${tf} | less)" \
+  --bind "ctrl-a:execute(echo {} && ${kanban_add})" \
+  --bind "ctrl-e:execute(echo {} && ${kanban_csv})" \
+  --bind "?:execute(printf 'enter:\tshow\nctrl-s:\tshow\nctrl-l:\tlist\nctrl-t:\ttags\nctrl-a:\tadd\nctrl-e:\tedit csv' | less)"
