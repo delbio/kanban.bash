@@ -15,16 +15,15 @@ kanban_tags="${mv_to_target} && ${KANBAN_OPTS} kanban tags $@"
 kanban_add="${mv_to_target} && ${KANBAN_OPTS} kanban add $@"
 kanban_csv="${mv_to_target} && ${KANBAN_OPTS} kanban csv $@"
 
-FZF_PREVIEW_OPTS="--preview \"${kanban_list}\""
+#FZF_PREVIEW_OPTS="--preview \"${kanban_list}\""
 
-if [ -n "$(command -v tput)" ]; then
-  XSMALL=119
-  X=$(tput cols)   # get size of terminal window
-  (( $X < $XSMALL )) && FZF_PREVIEW_OPTS=""
-fi
+#if [ -n "$(command -v tput)" ]; then
+  #XSMALL=119
+  #X=$(tput cols)   # get size of terminal window
+  #(( $X < $XSMALL )) && FZF_PREVIEW_OPTS=""
+#fi
 
 find -L . -iname ".kanban" | fzf \
-  ${FZF_PREVIEW_OPTS} \
   --header '? help' \
   --layout=reverse \
   --bind "enter:execute( echo {} > ${tf} && ${kanban_list} >> ${tf} && cat ${tf} | less)" \
