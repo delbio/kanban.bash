@@ -67,6 +67,8 @@ COL1="\033[37;1m"
 COL2="\033[91;1m"
 COL3="\033[91;5m"
 TMP=$(mktemp -t kanban.XXXXXXXX)
+IS_MAC=0
+[[ "$(uname)" =~ Darwin ]] && IS_MAC=1
 [[ ! -n $TERM ]] && TERM=vt100
 echo "$LANG" | grep -q "UTF-8" && UTF8=1
 [[ -n $PLAIN ]] && unset UTF8
@@ -108,6 +110,11 @@ maximum_todo[DOING]=5
 
 # usage: fb put <x> <y> <string>
 put() { printf "\x1B["$2";"$1"f$3" "$4"; }
+
+sedi(){
+  test $IS_MAC = 0 && sed -i "$@"
+  test $IS_MAC = 1 && sed -i '' "$@"
+}
 
 strtoline() {
     str="$1"
@@ -309,7 +316,7 @@ update_item_status(){
     newitem="${newitem/$status/$2}"
     newitem="${newitem/$flags/$newflags}"
     newitem="${newitem/$dates/$newdates}"
-    sed -i '' "s|$item|$newitem|g" "$KANBANFILE" 
+    sedi "s|$item|$newitem|g" "$KANBANFILE" 
     echo "$status -> $2"
   fi
 }
@@ -327,7 +334,7 @@ update_item(){
 #
 '"$item" > $TMP.update
   ${EDITOR} $TMP.update
-  sed -i '' "s|$item|$(cat $TMP.update | tail -n1)|g" "$KANBANFILE" 
+  sedi "s|$item|$(cat $TMP.update | tail -n1)|g" "$KANBANFILE" 
   echo "updated item $1"
 }
 
